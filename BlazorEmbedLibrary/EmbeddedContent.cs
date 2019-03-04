@@ -10,7 +10,7 @@ namespace BlazorEmbedLibrary
 	public class EmbeddedContent : ComponentBase
 	{
 		[Inject] IJSRuntime jSRuntime { get; set; }
-		[Parameter] protected bool Debug { get; set; } = true;
+		[Parameter] protected bool Debug { get; set; } = false;
 		[Parameter] protected Type BaseType { get; set; }
 
 		protected override async Task OnInitAsync()

@@ -40,11 +40,13 @@ Add a *Using* and an *addTagHelper* to the __ViewImports file
 @addTagHelper *, BlazorEmbedLibrary
 ```
 
-Then add the component to whichever page you want e.g. MainLayout
+Then add the component to whichever page you want e.g. MainLayout, Index.cshtml - wherever makes sense for your project/needs.
 
 ```
 <EmbeddedContent BaseType="@(typeof(Component1))" />
 ```
+
+Note, by default the EmbeddedContent component has Debug turned off - if you enable it by setting Debug=true, it outputs the list of embedded resources.
 
 This will read any CSS or Js files, which are embedded resources, from the Component1 library and add them to the `head` of the document.
 
