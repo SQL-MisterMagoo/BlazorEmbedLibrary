@@ -11,19 +11,14 @@
     <BlazorLinkOnBuild>true</BlazorLinkOnBuild>
     <Authors>Mister Magoo</Authors>
     <Company>MM</Company>
-    <Description>A Blazor Component that has embedded content</Description>
+    <Description>A Blazor Component that brings Blazor-style static content to Razor Components</Description>
     <Copyright>Completely Free For Non-Profit</Copyright>
-    <PackageProjectUrl>https://github.com/SQL-MisterMagoo/BlazorScrollBar</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/SQL-MisterMagoo/BlazorScrollBar</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/SQL-MisterMagoo/BlazorEmbedLibrary</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/SQL-MisterMagoo/BlazorEmbedLibrary</RepositoryUrl>
     <PackageTags>Blazor,Embed,Content,Component</PackageTags>
     <Version>$(ReleaseVersion)</Version>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="test.css" />
-    <None Remove="TestJS.js" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Blazor" Version="$(BlazorVersion)" />
@@ -31,11 +26,6 @@
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="2.2.0" />
 
     <DotNetCliToolReference Include="Microsoft.AspNetCore.Blazor.Cli" Version="$(BlazorVersion)" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="test.css" />
-    <EmbeddedResource Include="TestJS.js" />      
   </ItemGroup>
 
 </Project>

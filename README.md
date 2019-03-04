@@ -47,3 +47,8 @@ Then add the component to whichever page you want e.g. MainLayout
 ```
 
 This will read any CSS or Js files, which are embedded resources, from the Component1 library and add them to the `head` of the document.
+
+## Examples
+
+I have included Blazored.LocalStorage and Blazored.Toast examples in the Razorcomponents App
+
