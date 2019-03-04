@@ -1,0 +1,15 @@
+﻿@using Microsoft.AspNetCore.Components
+@inherits ComponentBase
+<div class="my-component">
+    This Blazor component is defined in the <strong>BlazorComponentSample</strong> package.
+</div>
+
+<button onclick="@OnClick">Click Me!</button>
+
+@functions
+{
+  Task OnClick(UIMouseEventArgs args)
+  {
+      return ExampleJsInterop.Prompt("you clicked me");
+  }
+}
