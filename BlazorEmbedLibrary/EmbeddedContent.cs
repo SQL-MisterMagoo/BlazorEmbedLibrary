@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.RenderTree;
 using Microsoft.JSInterop;
 using System;
@@ -68,7 +68,7 @@ namespace BlazorEmbedLibrary
 			if (Debug)
 			{
 				builder.OpenElement(0, "h4");
-				builder.AddContent(1, "--- Embedded Files ---");
+				builder.AddContent(1, "--- Start Embedded Files from " + BaseType.ToString() + " ---");
 				builder.CloseElement();
 				builder.OpenElement(2, "ul");
 				foreach (var item in ListEmbeddedResources(BaseType))
@@ -80,7 +80,7 @@ namespace BlazorEmbedLibrary
 				}
 				builder.CloseElement();
 				builder.OpenElement(0, "h4");
-				builder.AddContent(1, "--- Embedded Files ---");
+				builder.AddContent(1, "--- End Embedded Files ---");
 				builder.CloseElement();
 			}
 		}
