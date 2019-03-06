@@ -33,6 +33,8 @@ A sample Razor Components server to show static files working.
 
 Add the nuget package BlazorEmbedLibrary
 
+https://www.nuget.org/packages/BlazorEmbedLibrary/
+
 Add a *Using* and an *addTagHelper* to the __ViewImports file
 
 ```
