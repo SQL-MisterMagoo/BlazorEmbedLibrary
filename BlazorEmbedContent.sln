@@ -8,6 +8,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{84E71A33-28B5-485E-81CD-625ED1A95A24}"
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
+		LICENSE = LICENSE
 		README.md = README.md
 	EndProjectSection
 EndProject
@@ -15,9 +16,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorEmbedLibrary", "Blazo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorComponentSample", "BlazorComponentSample\BlazorComponentSample.csproj", "{0E5308C8-4453-44C6-93E2-434E02C5A834}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RazorComponentsSample.Server", "RazorComponentsSample\RazorComponentsSample.Server\RazorComponentsSample.Server.csproj", "{321B4834-0D15-4752-945A-350FE4F3E187}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RazorComponentsSample.Server", "RazorComponentsSample\RazorComponentsSample.Server\RazorComponentsSample.Server.csproj", "{321B4834-0D15-4752-945A-350FE4F3E187}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RazorComponentsSample.App", "RazorComponentsSample\RazorComponentsSample.App\RazorComponentsSample.App.csproj", "{AF8C09AB-74C0-4227-B008-D264891ECFE3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RazorComponentsSample.App", "RazorComponentsSample\RazorComponentsSample.App\RazorComponentsSample.App.csproj", "{AF8C09AB-74C0-4227-B008-D264891ECFE3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

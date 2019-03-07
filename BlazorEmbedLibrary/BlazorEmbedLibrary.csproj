@@ -12,20 +12,29 @@
     <Authors>Mister Magoo</Authors>
     <Company>MM</Company>
     <Description>A Blazor Component that brings Blazor-style static content to Razor Components</Description>
-    <Copyright>Completely Free For Non-Profit</Copyright>
+    <Copyright>2019 SQL-MisterMagoo</Copyright>
     <PackageProjectUrl>https://github.com/SQL-MisterMagoo/BlazorEmbedLibrary</PackageProjectUrl>
     <RepositoryUrl>https://github.com/SQL-MisterMagoo/BlazorEmbedLibrary</RepositoryUrl>
-    <PackageTags>Blazor,Embed,Content,Component</PackageTags>
+    <PackageTags>Razor Components,Embed,Content,Component,css,javascript</PackageTags>
     <Version>$(ReleaseVersion)</Version>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageLicenseExpression></PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Blazor" Version="$(BlazorVersion)" />
     <PackageReference Include="Microsoft.AspNetCore.Blazor.Build" Version="$(BlazorVersion)" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="2.2.0" />
 
     <DotNetCliToolReference Include="Microsoft.AspNetCore.Blazor.Cli" Version="$(BlazorVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
