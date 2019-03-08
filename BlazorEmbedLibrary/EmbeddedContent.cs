@@ -12,8 +12,18 @@ namespace BlazorEmbedLibrary
 		[Inject] IJSRuntime jSRuntime { get; set; }
 		[Parameter] protected bool Debug { get; set; } = false;
 		[Parameter] protected Type BaseType { get; set; }
+		private bool PreRender { get; set; } = true;
 
-		protected override async Task OnInitAsync()
+		protected override async Task OnAfterRenderAsync()
+		{
+			await base.OnAfterRenderAsync();
+			if (!PreRender)
+			{
+				await LoadEmbeddedResources();
+			}
+
+		}
+		private async Task LoadEmbeddedResources()
 		{
 			foreach (var item in ListEmbeddedResources(BaseType))
 			{
@@ -23,7 +33,7 @@ namespace BlazorEmbedLibrary
 				{
 					case ".css":
 					case ".js":
-						if (!(await DoesLinkExist(BaseType,item)) && !(await DoesScriptExist(BaseType,item)))
+						if (!(await DoesLinkExist(BaseType, item)) && !(await DoesScriptExist(BaseType, item)))
 						{
 							string content;
 							using (var stream = GetContentStream(BaseType, item))
@@ -58,12 +68,9 @@ namespace BlazorEmbedLibrary
 			if (Debug) Console.WriteLine(message);
 		}
 
-		protected override bool ShouldRender()
-		{
-			return Debug;
-		}
 		protected override void BuildRenderTree(RenderTreeBuilder builder)
 		{
+
 			base.BuildRenderTree(builder);
 			if (Debug)
 			{
@@ -82,6 +89,45 @@ namespace BlazorEmbedLibrary
 				builder.OpenElement(0, "h4");
 				builder.AddContent(1, "--- End Embedded Files ---");
 				builder.CloseElement();
+			}
+			DetectRenderMode(builder);
+		}
+
+		private void DetectRenderMode(RenderTreeBuilder builder)
+		{
+			try
+			{
+				var btype = builder.GetType();
+				var rendererFI = btype.GetField("_renderer", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+				if (rendererFI is null)
+				{
+					PreRender = false;
+					return;
+				}
+				var renderer = rendererFI.GetValue(builder);
+				if (renderer is null)
+				{
+					PreRender = false;
+					return;
+				}
+				var rendererType = renderer.GetType();
+				if (rendererType is null)
+				{
+					PreRender = false;
+					return;
+				}
+				var renderModeFI = rendererType.GetField("_prerenderMode", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+				if (renderModeFI is null)
+				{
+					PreRender = false;
+					return;
+				}
+
+				PreRender = (bool)renderModeFI.GetValue(renderer);
+			}
+			catch
+			{
+				// older previews didn't have pre-render
 			}
 		}
 
@@ -123,7 +169,17 @@ namespace BlazorEmbedLibrary
 			}
 			string script = $"document.head.querySelector(\"link[id='{SafeFileName(name)}'],link[href='{fileName}']\")";
 			DebugLog($"DoesLinkExist {name}: {script}");
-			var result = await jSRuntime.InvokeAsync<object>("eval", script);
+			object result = null;
+			try
+			{
+				result = await jSRuntime.InvokeAsync<object>("eval", script);
+			}
+			catch (Exception ex)
+			{
+
+				Console.WriteLine(ex);
+
+			}
 			bool found = !(result is null);
 			DebugLog($"DoesLinkExist {name}: {found}");
 			return found;
@@ -134,14 +190,24 @@ namespace BlazorEmbedLibrary
 			// name will be blazor:js:somthing.js or AssemblyNameSpace.somthing.js
 			string[] parts = name.Split(':');
 			string fileName = parts[parts.Length - 1];
-			if (parts.Length==3)
+			if (parts.Length == 3)
 			{
 				// the name is blazor:js:somthing.js
 				fileName = $"_content/{type.Assembly.GetName().Name}/{fileName}";
 			}
 			string script = $"document.head.querySelector(\"script[id='{SafeFileName(name)}'],script[src='{fileName}']\")";
 			DebugLog($"DoesScriptExist {name}: {script}");
-			var result = await jSRuntime.InvokeAsync<object>("eval", script);
+			object result = null;
+			try
+			{
+				result = await jSRuntime.InvokeAsync<object>("eval", script);
+			}
+			catch (Exception ex)
+			{
+
+				Console.WriteLine(ex);
+
+			}
 			bool found = !(result is null);
 			DebugLog($"DoesScriptExist {name}: {found}");
 			return found;
@@ -150,7 +216,7 @@ namespace BlazorEmbedLibrary
 		public IEnumerable<string> ListEmbeddedResources(Type type)
 		{
 			var resources = type.Assembly.GetManifestResourceNames();
-			Console.WriteLine($"Got resources: {string.Join(", ",resources)}");
+			Console.WriteLine($"Got resources: {string.Join(", ", resources)}");
 			DebugLog($"Using type: {type.Name} from {type.Assembly.GetName().Name}");
 			foreach (var item in resources)
 			{
@@ -165,7 +231,8 @@ namespace BlazorEmbedLibrary
 		}
 
 		string SafeFileName(string name) => name.Replace(":", "_");
-		
+
 		string SafeJsString(string content) => content.Replace(@"\", @"\\").Replace("\r", @"\r").Replace("\n", @"\n").Replace("'", @"\'").Replace("\"", @"\""");
+
 	}
 }

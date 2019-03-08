@@ -11,8 +11,6 @@ This is the component library that provides all the functionality.
 
 It is a netstandard component library (i.e. a netstandard2.0 library) with one c# code file.
 
-I have included two sample static files, one css that makes the body background cyan, and one JS file that you can test from the dev tools console `testjs.testfunc()` - shows an alert.
-
 ### BlazorComponentSample
 
 An out-of-the-box sample Blazor component library with static files.
