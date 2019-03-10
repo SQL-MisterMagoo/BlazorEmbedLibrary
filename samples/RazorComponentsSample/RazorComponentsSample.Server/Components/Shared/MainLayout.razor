@@ -1,6 +1,4 @@
 ﻿@inherits LayoutComponentBase
-<EmbeddedContent BaseType="@(typeof(Blazored.Toast.BlazoredToasts))" Debug="false"/>
-<BlazoredToasts />
 <div class="sidebar">
     <NavMenu />
 </div>
@@ -12,5 +10,41 @@
 
     <div class="content px-4">
         @Body
+        @**@
+        <hr />
+        <button class="btn btn-dark" onclick="@SwitchEmbedding">Switch Embedding Test</button>
+        @if (EmbedSwitch)
+        {
+            <div>@(new MarkupString("<EmbeddedContent Assemblies=\"@Assemblies\" Debug=\"true\" BlockCssFiles=\"@BlockCss\" />").Value)</div>
+            <EmbeddedContent Assemblies="@Assemblies" Debug="true" BlockCssFiles="@BlockCss" />
+        }
+        else
+        {
+            <div>@(new MarkupString("<EmbeddedContent BaseType=\"@(typeof(Blazored.Toast.BlazoredToasts))\" Debug=\"true\" BlockCssFiles=\"@BlockCss\" />").Value)</div>
+            <EmbeddedContent BaseType="@(typeof(Blazored.Toast.BlazoredToasts))" Debug="true" BlockCssFiles="@BlockCss" />
+            <div>@(new MarkupString("<EmbeddedContent BaseType=\"@(typeof(Component1))\" Debug=\"true\" />").Value)</div>
+            <EmbeddedContent BaseType="@(typeof(Component1))" Debug="true" />
+        }
+        <BlazoredToasts />
     </div>
 </div>
+
+
+@functions
+{
+    bool EmbedSwitch;
+    List<System.Reflection.Assembly> Assemblies = new List<System.Reflection.Assembly>()
+{
+    typeof(BlazorComponentSample.Component1).Assembly,
+    typeof(Blazored.Toast.BlazoredToasts).Assembly
+};
+    List<string> BlockCss = new List<string>()
+{
+    "BlazorComponentSample,styles.css"
+};
+    void SwitchEmbedding(UIMouseEventArgs args)
+    {
+        EmbedSwitch = !EmbedSwitch;
+    }
+
+}

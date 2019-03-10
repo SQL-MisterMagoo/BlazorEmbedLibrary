@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Components.RenderTree;
 using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace BlazorEmbedLibrary
@@ -10,57 +12,136 @@ namespace BlazorEmbedLibrary
 	public class EmbeddedContent : ComponentBase
 	{
 		[Inject] IJSRuntime jSRuntime { get; set; }
+		/// <summary>
+		/// Displays a list of the embedded files for each assembly and extra console logging.
+		/// </summary>
 		[Parameter] protected bool Debug { get; set; } = false;
+		/// <summary>
+		/// Easy way to enable one Assembly by passing a contained type e.g. BaseType=@(typeof(Mycomponent))
+		/// </summary>
 		[Parameter] protected Type BaseType { get; set; }
+		/// <summary>
+		/// Allows multiple Assemblies to be passed as a list e.g. Assemblies=@ListOfAssemblies (where ListOfAssemblies is List<Assembly>
+		/// </summary>
+		[Parameter] protected List<Assembly> Assemblies { get; set; }
+		/// <summary>
+		/// Allows blocking/removal of any CSS file in this list e.g. BlockCssFiles=@BlockCss (where Css is List<string>)
+		/// 
+		/// Prefix by an assembly name and a comma to be more specific 
+		/// e.g. 
+		/// "Blazored.Toast,styles.css" will only block styles.css from the Blazored.Toast assembly
+		/// "styles.css" will block styles.css from ANY assembly
+		/// </summary>
+		[Parameter] protected List<string> BlockCssFiles { get; set; }
 		private bool PreRender { get; set; } = true;
-
+		private bool HasRun;
+		protected override void OnInit()
+		{
+			base.OnInit();
+			Assemblies = Assemblies ?? new List<Assembly>();
+			BlockCssFiles = BlockCssFiles ?? new List<string>();
+			if (!(BaseType is null) && !Assemblies.Contains(BaseType.Assembly))
+			{
+				Assemblies.Add(BaseType.Assembly);
+			}
+		}
 		protected override async Task OnAfterRenderAsync()
 		{
 			await base.OnAfterRenderAsync();
-			if (!PreRender)
+			if (!PreRender && !HasRun)
 			{
+				HasRun = true;
 				await LoadEmbeddedResources();
 			}
 
 		}
 		private async Task LoadEmbeddedResources()
 		{
-			foreach (var item in ListEmbeddedResources(BaseType))
+			foreach (var assembly in Assemblies)
 			{
-				var ext = System.IO.Path.GetExtension(item).ToLower();
-				if (Debug) DebugLog($"Extension: [{ext}]");
-				switch (ext)
+
+				foreach (var item in ListEmbeddedResources(assembly))
 				{
-					case ".css":
-					case ".js":
-						if (!(await DoesLinkExist(BaseType, item)) && !(await DoesScriptExist(BaseType, item)))
-						{
-							string content;
-							using (var stream = GetContentStream(BaseType, item))
+					var ext = System.IO.Path.GetExtension(item).ToLower();
+					if (Debug) DebugLog($"Extension: [{ext}]");
+					switch (ext)
+					{
+						case ".css":
+						case ".js":
+							bool linkExists = await DoesLinkExist(assembly, item);
+							bool scriptExists = await DoesScriptExist(assembly, item);
+							if (ShouldBlockItem(assembly, item, ext))
 							{
-								using (var sr = new System.IO.StreamReader(stream))
+								if (linkExists)
 								{
-									content = await sr.ReadToEndAsync();
+									var _ = await RemoveLink(assembly, item);
 								}
 							}
-							if (Debug) DebugLog($"Content: {content}");
-							switch (ext)
+							else
 							{
-								case ".css":
-									await AttachStyleSheet(item, content);
-									break;
-								case ".js":
-									await AttachJavaScript(item, content);
-									break;
-								default:
-									break;
+								if (!linkExists && !scriptExists)
+								{
+									string content;
+									using (var stream = GetContentStream(assembly, item))
+									{
+										using (var sr = new System.IO.StreamReader(stream))
+										{
+											content = await sr.ReadToEndAsync();
+										}
+									}
+									if (Debug) DebugLog($"Content: {content}");
+									string attachName = $"{assembly.GetName().Name}.{item}";
+									switch (ext)
+									{
+										case ".css":
+											await AttachStyleSheet(attachName, content);
+											break;
+										case ".js":
+											await AttachJavaScript(attachName, content);
+											break;
+										default:
+											break;
+									}
+								}
 							}
-						}
-						break;
-					default:
-						break;
+							break;
+						default:
+							break;
+					}
 				}
 			}
+		}
+
+		private bool ShouldBlockItem(Assembly assembly, string item, string ext)
+		{
+			if (!item.ToLowerInvariant().EndsWith(".css"))
+			{
+				return false; //Can only block css
+			}
+
+			var assemblyName = assembly.GetName().Name;
+			return BlockCssFiles
+				.Where(b => !string.IsNullOrWhiteSpace(b))
+				.Any(b =>
+				{
+					var parts = b.Split(',');
+					if (parts.Length > 1)
+					{
+						if (parts[0].Equals(assemblyName, StringComparison.InvariantCultureIgnoreCase))
+						{							
+							if (item.ToLowerInvariant().Contains(parts[1].ToLowerInvariant()))
+							{
+								return true; // matched on assemblyname and item
+							}
+						}
+						return false;
+					}
+					if (item.ToLowerInvariant().Contains(b.ToLowerInvariant()))
+					{
+						return true; // no assembly
+					}
+					return false;
+			});
 		}
 
 		private void DebugLog(string message)
@@ -74,21 +155,27 @@ namespace BlazorEmbedLibrary
 			base.BuildRenderTree(builder);
 			if (Debug)
 			{
-				builder.OpenElement(0, "h4");
-				builder.AddContent(1, "--- Start Embedded Files from " + BaseType.ToString() + " ---");
-				builder.CloseElement();
-				builder.OpenElement(2, "ul");
-				foreach (var item in ListEmbeddedResources(BaseType))
+				foreach (var assembly in Assemblies )
 				{
-					DebugLog(item);
-					builder.OpenElement(3, "li");
-					builder.AddContent(4, item);
+
+					builder.OpenElement(0, "h4");
+					builder.AddContent(1, $"--- Start Embedding Files from {assembly.GetName().Name} ---");
+					builder.CloseElement();
+					foreach (var item in ListEmbeddedResources(assembly))
+					{
+						DebugLog(item);
+						builder.OpenElement(3, "div");
+						builder.AddContent(4, item);
+						if (ShouldBlockItem(assembly, item, ".css"))
+						{
+							builder.AddContent(5, "** Block **");
+						}
+						builder.CloseElement();
+					}
+					builder.OpenElement(6, "h4");
+					builder.AddContent(7, "--- End Embedding Files ---");
 					builder.CloseElement();
 				}
-				builder.CloseElement();
-				builder.OpenElement(0, "h4");
-				builder.AddContent(1, "--- End Embedded Files ---");
-				builder.CloseElement();
 			}
 			DetectRenderMode(builder);
 		}
@@ -98,7 +185,7 @@ namespace BlazorEmbedLibrary
 			try
 			{
 				var btype = builder.GetType();
-				var rendererFI = btype.GetField("_renderer", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+				var rendererFI = btype.GetField("_renderer", BindingFlags.NonPublic | BindingFlags.Instance);
 				if (rendererFI is null)
 				{
 					PreRender = false;
@@ -116,7 +203,7 @@ namespace BlazorEmbedLibrary
 					PreRender = false;
 					return;
 				}
-				var renderModeFI = rendererType.GetField("_prerenderMode", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+				var renderModeFI = rendererType.GetField("_prerenderMode", BindingFlags.NonPublic | BindingFlags.Instance);
 				if (renderModeFI is null)
 				{
 					PreRender = false;
@@ -131,7 +218,7 @@ namespace BlazorEmbedLibrary
 			}
 		}
 
-		public async Task AttachStyleSheet(string name, string content)
+		private async Task AttachStyleSheet(string name, string content)
 		{
 			try
 			{
@@ -144,7 +231,7 @@ namespace BlazorEmbedLibrary
 			}
 		}
 
-		public async Task AttachJavaScript(string name, string content)
+		private async Task AttachJavaScript(string name, string content)
 		{
 			try
 			{
@@ -157,7 +244,7 @@ namespace BlazorEmbedLibrary
 			}
 		}
 
-		public async Task<bool> DoesLinkExist(Type type, string name)
+		private async Task<bool> DoesLinkExist(Assembly assembly, string name)
 		{
 			// name will be blazor:js:somthing.js or AssemblyNameSpace.somthing.js
 			string[] parts = name.Split(':');
@@ -165,9 +252,10 @@ namespace BlazorEmbedLibrary
 			if (parts.Length == 3)
 			{
 				// the name is blazor:js:somthing.js
-				fileName = $"_content/{type.Assembly.GetName().Name}/{fileName}";
+				fileName = $"_content/{assembly.GetName().Name}/{fileName}";
 			}
-			string script = $"document.head.querySelector(\"link[id='{SafeFileName(name)}'],link[href='{fileName}']\")";
+			string attachName = $"{assembly.GetName().Name}.{name}";
+			string script = $"document.head.querySelector(\"link[id='{SafeFileName(attachName)}'],link[href='{fileName}']\")";
 			DebugLog($"DoesLinkExist {name}: {script}");
 			object result = null;
 			try
@@ -184,8 +272,7 @@ namespace BlazorEmbedLibrary
 			DebugLog($"DoesLinkExist {name}: {found}");
 			return found;
 		}
-
-		public async Task<bool> DoesScriptExist(Type type, string name)
+		private async Task<bool> RemoveLink(Assembly assembly, string name)
 		{
 			// name will be blazor:js:somthing.js or AssemblyNameSpace.somthing.js
 			string[] parts = name.Split(':');
@@ -193,9 +280,37 @@ namespace BlazorEmbedLibrary
 			if (parts.Length == 3)
 			{
 				// the name is blazor:js:somthing.js
-				fileName = $"_content/{type.Assembly.GetName().Name}/{fileName}";
+				fileName = $"_content/{assembly.GetName().Name}/{fileName}";
 			}
-			string script = $"document.head.querySelector(\"script[id='{SafeFileName(name)}'],script[src='{fileName}']\")";
+			string attachName = $"{assembly.GetName().Name}.{name}";
+			string script = $"const el=document.head.querySelector(\"link[id='{SafeFileName(attachName)}'],link[href='{fileName}']\");el.disabled = true;el.remove();";
+			DebugLog($"RemoveLink {name}: {script}");
+			object result = null;
+			try
+			{
+				result = await jSRuntime.InvokeAsync<object>("eval", script);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+			}
+			bool found = !(result is null);
+			DebugLog($"RemoveLink {name}: {found}");
+			return found;
+		}
+
+		private async Task<bool> DoesScriptExist(Assembly assembly, string name)
+		{
+			// name will be blazor:js:somthing.js or AssemblyNameSpace.somthing.js
+			string[] parts = name.Split(':');
+			string fileName = parts[parts.Length - 1];
+			if (parts.Length == 3)
+			{
+				// the name is blazor:js:somthing.js
+				fileName = $"_content/{assembly.GetName().Name}/{fileName}";
+			}
+			string attachName = $"{assembly.GetName().Name}.{name}";
+			string script = $"document.head.querySelector(\"script[id='{SafeFileName(attachName)}'],script[src='{fileName}']\")";
 			DebugLog($"DoesScriptExist {name}: {script}");
 			object result = null;
 			try
@@ -212,22 +327,48 @@ namespace BlazorEmbedLibrary
 			DebugLog($"DoesScriptExist {name}: {found}");
 			return found;
 		}
-
-		public IEnumerable<string> ListEmbeddedResources(Type type)
+		private async Task<bool> RemoveScript(Assembly assembly, string name)
 		{
-			var resources = type.Assembly.GetManifestResourceNames();
-			Console.WriteLine($"Got resources: {string.Join(", ", resources)}");
-			DebugLog($"Using type: {type.Name} from {type.Assembly.GetName().Name}");
+			// name will be blazor:js:somthing.js or AssemblyNameSpace.somthing.js
+			string[] parts = name.Split(':');
+			string fileName = parts[parts.Length - 1];
+			if (parts.Length == 3)
+			{
+				// the name is blazor:js:somthing.js
+				fileName = $"_content/{assembly.GetName().Name}/{fileName}";
+			}
+			string attachName = $"{assembly.GetName().Name}.{name}";
+			string script = $"const el=document.head.querySelector(\"script[id='{SafeFileName(attachName)}'],script[src='{fileName}']\");el.disabled=true;el.remove();";
+			DebugLog($"RemoveScript {name}: {script}");
+			object result = null;
+			try
+			{
+				result = await jSRuntime.InvokeAsync<object>("eval", script);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+			}
+			bool found = !(result is null);
+			DebugLog($"RemoveScript {name}: {found}");
+			return found;
+		}
+
+		private IEnumerable<string> ListEmbeddedResources(Assembly assembly)
+		{
+			var resources = assembly.GetManifestResourceNames();
+			DebugLog($"Got resources: {string.Join(", ", resources)}");
+			DebugLog($"Using assembly: {assembly.GetName().Name}");
 			foreach (var item in resources)
 			{
 				yield return item;
 			}
 		}
 
-		public System.IO.Stream GetContentStream(Type type, string name)
+		private System.IO.Stream GetContentStream(Assembly assembly, string name)
 		{
-			DebugLog($"GetContentStream for {name} from type: {type.Name} from {type.Assembly.GetName().Name}");
-			return type.Assembly.GetManifestResourceStream(name);
+			DebugLog($"GetContentStream for {name} from assembly: {assembly.GetName().Name}");
+			return assembly.GetManifestResourceStream(name);
 		}
 
 		string SafeFileName(string name) => name.Replace(":", "_");

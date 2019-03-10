@@ -38,7 +38,7 @@ namespace RazorComponentsSample.Server
 				app.UseHsts();
 			}
 
-			app.UseHttpsRedirection();
+			//app.UseHttpsRedirection();
 			app.UseStaticFiles();
 
 			app.UseRouting(routes =>
