@@ -1,6 +1,6 @@
 using System;
 
-namespace RazorComponentsSample.App.Services
+namespace RazorComponentsSample.Server.Services
 {
 	public class WeatherForecast
 	{
