@@ -1,6 +1,7 @@
 <Project>
  <PropertyGroup>
-   <BlazorVersion>0.8.0-preview-19104-04</BlazorVersion>
-   <ReleaseVersion>0.1.0-beta-2</ReleaseVersion>
+   <BlazorVersion>0.9.0-preview3-19154-02</BlazorVersion>
+   <AspNetCoreVersion>3.0.0-preview3-19153-02</AspNetCoreVersion>
+   <ReleaseVersion>0.1.0-beta-3</ReleaseVersion>
  </PropertyGroup>
 </Project>
