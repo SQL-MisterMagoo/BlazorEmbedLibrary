@@ -15,8 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\BlazorEmbedLibrary\BlazorEmbedLibrary.csproj" />
     <ProjectReference Include="..\BlazorComponentSample\BlazorComponentSample.csproj" />
-    <ProjectReference Include="..\BlazorEmbedLibrary\BlazorEmbedLibrary.csproj" />
   </ItemGroup>
 
 </Project>
