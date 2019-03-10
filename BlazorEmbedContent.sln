@@ -18,8 +18,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorComponentSample", "Bl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RazorComponentsSample.Server", "RazorComponentsSample\RazorComponentsSample.Server\RazorComponentsSample.Server.csproj", "{321B4834-0D15-4752-945A-350FE4F3E187}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RazorComponentsSample.App", "RazorComponentsSample\RazorComponentsSample.App\RazorComponentsSample.App.csproj", "{AF8C09AB-74C0-4227-B008-D264891ECFE3}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,10 +40,6 @@ Global
 		{321B4834-0D15-4752-945A-350FE4F3E187}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{321B4834-0D15-4752-945A-350FE4F3E187}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{321B4834-0D15-4752-945A-350FE4F3E187}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AF8C09AB-74C0-4227-B008-D264891ECFE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AF8C09AB-74C0-4227-B008-D264891ECFE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AF8C09AB-74C0-4227-B008-D264891ECFE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AF8C09AB-74C0-4227-B008-D264891ECFE3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
