@@ -8,7 +8,7 @@
       https://dotnet.myget.org/f/blazor-dev/api/v3/index.json;
     </RestoreAdditionalProjectSources>
     <LangVersion>latest</LangVersion>
-    <BlazorLinkOnBuild>true</BlazorLinkOnBuild>
+    <BlazorLinkOnBuild>false</BlazorLinkOnBuild>
     <Authors>Mister Magoo</Authors>
     <Company>MM</Company>
     <Description>A Blazor Component that brings Blazor-style static content to Razor Components</Description>
@@ -26,6 +26,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Blazor" Version="$(BlazorVersion)" />
     <PackageReference Include="Microsoft.AspNetCore.Blazor.Build" Version="$(BlazorVersion)" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Abstractions" Version="2.2.0" />
 
     <DotNetCliToolReference Include="Microsoft.AspNetCore.Blazor.Cli" Version="$(BlazorVersion)" />
   </ItemGroup>

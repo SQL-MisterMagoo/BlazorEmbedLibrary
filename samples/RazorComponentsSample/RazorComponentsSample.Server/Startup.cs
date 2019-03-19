@@ -1,11 +1,14 @@
 ﻿using Blazored.LocalStorage;
 using Blazored.Toast.Services;
+using BlazorEmbedLibrary;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RazorComponentsSample.Server.Components;
 using RazorComponentsSample.Server.Services;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace RazorComponentsSample.Server
 {
@@ -40,6 +43,10 @@ namespace RazorComponentsSample.Server
 
 			//app.UseHttpsRedirection();
 			app.UseStaticFiles();
+			app.UseStaticFiles(new StaticFileOptions()
+			{
+				FileProvider = new BlazorFileProvider(new List<Assembly>() { typeof(BlazorComponentSample.Component1).Assembly })
+			});
 
 			app.UseRouting(routes =>
 			{
