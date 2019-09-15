@@ -6,7 +6,7 @@ namespace BlazorComponentSample
 {
     public class ExampleJsInterop
     {
-        public static Task<string> Prompt(IJSRuntime jSRuntime, string message)
+        public static ValueTask<string> Prompt(IJSRuntime jSRuntime, string message)
         {
             // Implemented in exampleJsInterop.js
             return jSRuntime.InvokeAsync<string>(

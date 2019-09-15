@@ -3,7 +3,10 @@
 
 This is a component library that provides Blazor-style static file embedding for Razor Components/Blazor.
 
-Chanegelog:
+Changelog:
+
+#### Version 1.0.0
+- Update to Preview9
 
 #### Version 0.1.0-beta-4
 - Add BlazorFileProvider : Static File Provider that serves embedded files from Blazor Libraries
@@ -38,17 +41,34 @@ https://www.nuget.org/packages/BlazorEmbedLibrary/
 
 #### Using the EmbeddedComponent to extract CSS/JS files
 
-Add a *Using* and an *addTagHelper* to the __ViewImports file
+I recommend placing this in your MainLayout (or equivalent), but you can do it on individual pages if that suits your project.
 
-```
+Add a *Using* statement to the page to make it easier to reference the component
+
+*MainLayout.razor*
+``` C#
 @using BlazorEmbedLibrary
-@addTagHelper *, BlazorEmbedLibrary
 ```
 
-Then add the component to whichever page you want e.g. MainLayout, Index.cshtml - wherever makes sense for your project/needs.
+...add the component :
 
+``` HTML
+ <EmbeddedContent BaseType="@(typeof(Component1))" />
 ```
-<EmbeddedContent BaseType="@(typeof(Component1))" />
+``` C#
+@code
+{
+ bool hasConnected = false;
+ protected override void OnAfterRender(bool firstRender)
+ {
+  base.OnAfterRender(firstRender);
+  if (firstRender)
+  {
+    StateHasChanged();
+    hasConnected = true;
+  }
+ }
+}
 ```
 
 Note, by default the EmbeddedContent component has Debug turned off - if you enable it by setting Debug=true, it outputs the list of embedded resources.
@@ -62,7 +82,7 @@ From version 0.1.0-beta-3 onwards, you can now handle multiple component librari
 ```
 <EmbeddedContent Assemblies="@Assemblies" />
 
-@functions
+@code
 {
 List<System.Reflection.Assembly> Assemblies = new List<System.Reflection.Assembly>()
 {
@@ -82,7 +102,7 @@ This example will load content from Blazored.Toast and Component1, but will bloc
 ```
 <EmbeddedContent Assemblies="@Assemblies" BlockCssFiles="@BlockCss" />
 
-@functions
+@code
 {
 List<string> BlockCss = new List<string>()
 {

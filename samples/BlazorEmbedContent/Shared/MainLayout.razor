@@ -12,7 +12,8 @@
         @Body
         @**@
         <hr />
-        <button class="btn btn-dark" onclick="@SwitchEmbedding">Switch Embedding Test</button>
+        <button @ ></button>
+        <button class="btn btn-dark" @onclick="@(()=>SwitchEmbedding())">Switch Embedding Test</button>
         @if (EmbedSwitch)
         {
             <div>@(new MarkupString("<EmbeddedContent Assemblies=\"@Assemblies\" Debug=\"true\" BlockCssFiles=\"@BlockCss\" />").Value)</div>
@@ -20,29 +21,29 @@
         }
         else
         {
-            <div>@(new MarkupString("<EmbeddedContent BaseType=\"@(typeof(Blazored.Toast.BlazoredToasts))\" Debug=\"true\" BlockCssFiles=\"@BlockCss\" />").Value)</div>
-            <EmbeddedContent BaseType="@(typeof(Blazored.Toast.BlazoredToasts))" Debug="true" BlockCssFiles="@BlockCss" />
+            @*<div>@(new MarkupString("<EmbeddedContent BaseType=\"@(typeof(Blazored.Toast.BlazoredToasts))\" Debug=\"true\" BlockCssFiles=\"@BlockCss\" />").Value)</div>
+                <EmbeddedContent BaseType="@(typeof(Blazored.Toast.BlazoredToasts))" Debug="true" BlockCssFiles="@BlockCss" />*@
             <div>@(new MarkupString("<EmbeddedContent BaseType=\"@(typeof(Component1))\" Debug=\"true\" />").Value)</div>
-            <EmbeddedContent BaseType="@(typeof(Component1))" Debug="true"  />
+            <EmbeddedContent BaseType="@(typeof(Component1))" Debug="true" />
         }
-        <BlazoredToasts />
+        @*<BlazoredToasts />*@
     </div>
 </div>
 
 
-@functions
+@code
 {
     bool EmbedSwitch;
-List<System.Reflection.Assembly> Assemblies = new List<System.Reflection.Assembly>()
+    List<System.Reflection.Assembly> Assemblies = new List<System.Reflection.Assembly>()
 {
     typeof(BlazorComponentSample.Component1).Assembly,
-    typeof(Blazored.Toast.BlazoredToasts).Assembly
+    //typeof(Blazored.Toast.BlazoredToasts).Assembly
 };
-List<string> BlockCss = new List<string>()
+    List<string> BlockCss = new List<string>()
 {
     "BlazorComponentSample,styles.css"
 };
-    void SwitchEmbedding(UIMouseEventArgs args)
+    void SwitchEmbedding()
     {
         EmbedSwitch = !EmbedSwitch;
     }
