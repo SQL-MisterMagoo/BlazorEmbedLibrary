@@ -1,34 +1,27 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <OutputType>Library</OutputType>
     <IsPackable>true</IsPackable>
-    <RestoreAdditionalProjectSources>
-      https://dotnet.myget.org/f/blazor-dev/api/v3/index.json;
-    </RestoreAdditionalProjectSources>
     <LangVersion>latest</LangVersion>
-    <BlazorLinkOnBuild>false</BlazorLinkOnBuild>
+    <BlazorLinkOnBuild>true</BlazorLinkOnBuild>
     <Authors>Mister Magoo</Authors>
     <Company>MM</Company>
     <Description>A Blazor Component that brings Blazor-style static content to Razor Components</Description>
     <Copyright>2019 SQL-MisterMagoo</Copyright>
     <PackageProjectUrl>https://github.com/SQL-MisterMagoo/BlazorEmbedLibrary</PackageProjectUrl>
     <RepositoryUrl>https://github.com/SQL-MisterMagoo/BlazorEmbedLibrary</RepositoryUrl>
-    <PackageTags>Razor Components,Embed,Content,Component,css,javascript</PackageTags>
+    <PackageTags>Blazor,Razor Components,Embed,Content,Component,css,javascript</PackageTags>
     <Version>$(ReleaseVersion)</Version>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageLicenseExpression></PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Blazor" Version="$(BlazorVersion)" />
-    <PackageReference Include="Microsoft.AspNetCore.Blazor.Build" Version="$(BlazorVersion)" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.Extensions.FileProviders.Abstractions" Version="2.2.0" />
-
-    <DotNetCliToolReference Include="Microsoft.AspNetCore.Blazor.Cli" Version="$(BlazorVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="$(BlazorVersion)" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Abstractions" Version="3.0.0-preview9.19423.4" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.AspNetCore.Components.RenderTree;
 using Microsoft.JSInterop;
 using System;
@@ -15,15 +16,15 @@ namespace BlazorEmbedLibrary
 		/// <summary>
 		/// Displays a list of the embedded files for each assembly and extra console logging.
 		/// </summary>
-		[Parameter] protected bool Debug { get; set; } = false;
+		[Parameter] public bool Debug { get; set; } = false;
 		/// <summary>
 		/// Easy way to enable one Assembly by passing a contained type e.g. BaseType=@(typeof(Mycomponent))
 		/// </summary>
-		[Parameter] protected Type BaseType { get; set; }
+		[Parameter] public Type BaseType { get; set; }
 		/// <summary>
 		/// Allows multiple Assemblies to be passed as a list e.g. Assemblies=@ListOfAssemblies (where ListOfAssemblies is List<Assembly>
 		/// </summary>
-		[Parameter] protected List<Assembly> Assemblies { get; set; }
+		[Parameter] public List<Assembly> Assemblies { get; set; }
 		/// <summary>
 		/// Allows blocking/removal of any CSS file in this list e.g. BlockCssFiles=@BlockCss (where Css is List<string>)
 		/// 
@@ -32,12 +33,12 @@ namespace BlazorEmbedLibrary
 		/// "Blazored.Toast,styles.css" will only block styles.css from the Blazored.Toast assembly
 		/// "styles.css" will block styles.css from ANY assembly
 		/// </summary>
-		[Parameter] protected List<string> BlockCssFiles { get; set; }
+		[Parameter] public List<string> BlockCssFiles { get; set; }
 		private bool PreRender { get; set; } = true;
 		private bool HasRun;
-		protected override void OnInit()
+		protected override void OnInitialized()
 		{
-			base.OnInit();
+			base.OnInitialized();
 			Assemblies = Assemblies ?? new List<Assembly>();
 			BlockCssFiles = BlockCssFiles ?? new List<string>();
 			if (!(BaseType is null) && !Assemblies.Contains(BaseType.Assembly))
@@ -45,9 +46,9 @@ namespace BlazorEmbedLibrary
 				Assemblies.Add(BaseType.Assembly);
 			}
 		}
-		protected override async Task OnAfterRenderAsync()
+		protected override async Task OnAfterRenderAsync(bool FirstRender)
 		{
-			await base.OnAfterRenderAsync();
+			await base.OnAfterRenderAsync(FirstRender);
 			if (!PreRender && !HasRun)
 			{
 				HasRun = true;

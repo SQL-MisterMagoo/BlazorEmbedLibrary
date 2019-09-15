@@ -1,16 +1,18 @@
-﻿@using Microsoft.AspNetCore.Components
-@inherits ComponentBase
+﻿@using Microsoft.AspNetCore.Components.Web
 @using Microsoft.JSInterop
+@inherits ComponentBase
 @inject IJSRuntime jSRuntime
+
 <div class="my-component">
     This Blazor component is defined in the <strong>BlazorComponentSample</strong> package.
 </div>
 
-<button onclick="@OnClick">Click Me!</button>
+<button @onclick="()=>OnClick()">Click Me!</button>
 
-@functions
+
+@code
 {
-  Task OnClick(UIMouseEventArgs args)
+  ValueTask<string> OnClick()
   {
       return ExampleJsInterop.Prompt(jSRuntime,"you clicked me");
   }
