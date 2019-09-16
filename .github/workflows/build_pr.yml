@@ -1,0 +1,17 @@
+name: Check PR
+
+on:
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.0.100-rc1-014190' # SDK Version to use.
+    - run: dotnet build src/BlazorEmbedLibrary/BlazorEmbedLibrary.csproj
